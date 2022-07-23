@@ -11,8 +11,12 @@ import (
 	"strings"
 )
 
-func parseCSVFile(filename string) ([][]string, error) {
-	var records [][]string
+type questionPair struct {
+    question, answer string
+}
+
+func parseCSVFile(filename string) ([]questionPair, error) {
+	var questionPairs []questionPair
 
 	csvFile, err := os.ReadFile(filename)
 	if err != nil {
@@ -32,10 +36,10 @@ func parseCSVFile(filename string) ([][]string, error) {
 			return nil, err
 		}
 
-		records = append(records, record)
+        questionPairs = append(questionPairs, questionPair{question: record[0], answer: record[1]})
 	}
 
-	return records, nil
+	return questionPairs, nil
 }
 
 func main() {
@@ -44,21 +48,21 @@ func main() {
 	csvFile := flag.String("f", "problems.csv", "a string")
 	flag.Parse()
 
-	if records, err := parseCSVFile(*csvFile); err != nil {
+	if questionPairs, err := parseCSVFile(*csvFile); err != nil {
 		log.Fatal(err)
 	} else {
-		for _, row := range records {
-			fmt.Printf("%s=", row[0])
+		for _, question := range questionPairs {
+			fmt.Printf("%s=", question.question)
 			var userInput = ""
 			if _, err := fmt.Scanln(&userInput); err != nil {
 				log.Fatal(err)
 			} else {
-				if userInput == row[1] {
+				if userInput == question.answer {
 					score += 1
 				}
 			}
 		}
-        numQs := len(records)
+        numQs := len(questionPairs)
         percent := math.Floor(float64(score)/float64(numQs) * 100)
 		fmt.Printf("\n\n Your score was: %d/%d (%.0f%%)\n", score, numQs, percent)
 	}
