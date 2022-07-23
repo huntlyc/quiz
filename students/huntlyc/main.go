@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"os"
+    "math/rand"
 	"strings"
 	"time"
 )
@@ -49,6 +50,8 @@ func main() {
 
 	csvFile := flag.String("f", "problems.csv", "csv file to read")
 	duration := flag.Int("d", 30, "time in seconds to run quiz for")
+	shuffle := flag.Bool("s", false, "shuffle the deck")
+
 	flag.Parse()
 
     durationStr := fmt.Sprintf("%ds", *duration)
@@ -60,6 +63,14 @@ func main() {
 	if questionPairs, err := parseCSVFile(*csvFile); err != nil {
 		log.Fatal(err)
 	} else {
+
+        if *shuffle { // randomise questionPairs
+            rand.Seed(time.Now().UnixNano())
+            rand.Shuffle(len(questionPairs), func(i, j int) {
+                questionPairs[i], questionPairs[j] = questionPairs[j], questionPairs[i]
+            })
+        }
+
         fmt.Printf("You have %s to answer all questions - press enter to begin", durationStr)
         fmt.Scanln();
 
@@ -73,14 +84,14 @@ func main() {
 
         var userInput = ""
         for _, question := range questionPairs {
-            questionsAsked++
             fmt.Printf("%s=", question.question)
 
             if _, err := fmt.Scanln(&userInput); err == nil { // ignore err, blank input
-                if userInput == question.answer {
+                if question.answer == strings.ToLower(strings.TrimSpace(userInput)) {
                     correctAnswers += 1
                 }
             }
+            questionsAsked++
         }
 
         fmt.Println("\n\nWell done - you answered all questions in the allowed time!!!")
