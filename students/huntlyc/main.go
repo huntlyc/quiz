@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -55,7 +54,7 @@ func parseCSVFile(filename string) ([]questionPair, error) {
 // ] 
 func parseJSONFile(filename string) ([]questionPair, error) {
 
-	fileContents, err := ioutil.ReadFile(filename)
+	fileContents, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
